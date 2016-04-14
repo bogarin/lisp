@@ -8,7 +8,7 @@
 ;(load "c:/Descargas/ltk.lisp")
 ;(load "c:/Descargas/tic-tac-toe-3.1.lisp")
 ;(tic-tac-toe:main)
-
+;jose ramon
 
 
 ;;;; El siguiente programa es el juego tic-tac-toe que contiene respuestas basadas en arboles de posibilidades de jugadas
