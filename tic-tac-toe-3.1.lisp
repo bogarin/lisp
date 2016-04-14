@@ -5,7 +5,9 @@
 ;5.- La app falla al poner mas de dos "X" sin haber dado turno al jugador.
 ;6.- La app falla al indicar que el jugador perdio, sin haber agotado antes todas las posibilidades.
 
-
+;(load "c:/Descargas/ltk.lisp")
+;(load "c:/Descargas/tic-tac-toe-3.1.lisp")
+;(tic-tac-toe:main)
 
 
 
