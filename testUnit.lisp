@@ -17,18 +17,37 @@
     (defvar *tabla*)
     (defvar *sub-tabla*)
     (defvar *jugada-numero*) ; numero de jugada del ordenador
-
     (setf *debug-tk* nil)
-    (setf *tablero* '(n n n n n n n n n))
-    (setf *hay-ganadores* nil)
-    (setf *niveles* 8)
-    (setf *ficha-humano* 'o)
-    (setf *ficha-ordenador* 'x)
-    (setf *fin-del-juego* nil)
-    (setf *comienza-humano* t)
-    (setf *tabla* nil)
-    (setf *sub-tabla* nil)
-    (setf *jugada-numero* 1)
+    (setf *debug-buffers* nil)
+
+
+    (defun juego-nuevo ()
+        (let
+          ()
+          (setf (text estado-juego) " ")
+          (setf *tablero* '(n n n n n n n n n))
+          (setf *hay-ganadores* nil)
+          (setf *niveles* 8)
+          (setf *ficha-humano* 'o)
+          (setf *ficha-ordenador* 'x)
+          (setf *fin-del-juego* nil)
+          (setf *comienza-humano* t)
+          (setf *tabla* nil)
+          (setf *jugada-numero* 1)
+          (setq *sub-tabla* nil); cuando empieza un juego nuevo, *sub-tabla* se pone a nil. Pues guardara un solo juego
+          (setq *jugada-numero* 1)
+          (setf marco (create-rectangle canvas 0 0 180 180))
+          (itemconfigure canvas marco :fill "white")
+          (itemconfigure canvas marco :outline "white")	;Ahora hay que poner en blanco la parte grafica, el tablero grafico
+          (setf linea-1 (create-line canvas '(60 0 60 180)))
+          (setf linea-2 (create-line canvas '(120 0 120 180)))
+          (setf linea-3 (create-line canvas '(0 60 180 60)))
+          (setf linea-4 (create-line canvas '(0 120 180 120)))
+
+          (itemconfigure canvas linea-1 :width 5)
+          (itemconfigure canvas linea-2 :width 5)
+          (itemconfigure canvas linea-3 :width 5)
+          (itemconfigure canvas linea-4 :width 5)))
 
     ;;;;--------------------------------------------------------------------------------
     ;;;; Funciones para cargar y guardar tabla de jugadas para remover de *arbol* ------
@@ -108,10 +127,10 @@
       (defun mostrar (arbol) ;;;;simple y elegante .-|
         (when (not (null arbol))
           (when (listp (first arbol)) ;cuando el primero de la lista "es" una lista
-    	(progn
-    	  (princ (first arbol))
-    	  (mostrar (car (rest arbol)))
-    	  (mostrar (cdr (rest arbol)))))))
+          	(progn
+          	  (princ (first arbol))
+          	  (mostrar (car (rest arbol)))
+          	  (mostrar (cdr (rest arbol)))))))
 
     ;;;;---------------------------------------------------------------------------------------------------
     ;;;; Funciones para buscar ganadores -----------------------------------------------------------------
@@ -119,12 +138,13 @@
 
       (defun ganadores (arbol ficha) ;genera una lista que contiene los tableros ganadores de una rama segun ficha
         (let
-    	((tablero nil)
-    	 (lista nil))
-          (dolist (tablero arbol)
-    	(when (not (listp (first tablero))) ;tableros de un nivel determinado
-    	  (when (gana tablero ficha)
-    	    (push tablero lista))))
+        	((tablero nil)
+        	  (lista nil))
+           (dolist (tablero arbol)
+      ;          (format t "metodo ganadores variable tablero:  ~S~%" tablero)
+        	    (when (not (listp (first tablero))) ;tableros de un nivel determinado
+        	       (when (gana tablero ficha)
+        	       (push tablero lista))))
           lista))
 
 
@@ -132,32 +152,25 @@
     ;;;;
       (defun raiz-ganador-nivel-x (ficha nivel);Devuelve los nodos raiz de las jugadas ganadoras segun nivel y ficha
         (let
-    	((ramas nil)
-    	 (ramas-x nil)
-    	 (arbol *arbol*)
-    	 (nodo nil)
-    	 (nodo-x nil)
-    	 (ganadores-x nil)
-    	 (ganadores-humano nil));////
-
-
-          (setq *hay-ganadores* nil)
-          (loop
-    	 (setq nodo (first arbol));el nodo raiz
-
-    	 (when (null nodo) (return))
-    	 (setq arbol (remove nodo arbol))
-
-    	 (setq ramas (first arbol))
-    	 (setq arbol (remove ramas arbol))
-
-    	 (if (= nivel 1)
-    	     (setq ganadores-x (ganadores ramas ficha))
-    	     (setq ganadores-x (ganadores-nivel-x ramas ficha nivel)))
-
-    	 (when (not (null ganadores-x)) (return)))
-
-          nodo))
+        	((ramas nil)
+        	 (ramas-x nil)
+        	 (arbol *arbol*)
+        	 (nodo nil)
+        	 (nodo-x nil)
+        	 (ganadores-x nil)
+        	 (ganadores-humano nil));////
+            (setq *hay-ganadores* nil)
+            (loop
+             (setq nodo (first arbol));el nodo raiz
+          	 (when (null nodo) (return))
+          	 (setq arbol (remove nodo arbol))
+          	 (setq ramas (first arbol))
+          	 (setq arbol (remove ramas arbol))
+          	 (if (= nivel 1)
+          	     (setq ganadores-x (ganadores ramas ficha))
+          	     (setq ganadores-x (ganadores-nivel-x ramas ficha nivel)))
+        	    (when (not (null ganadores-x)) (return)))
+        nodo))
 
     ;;;;----------------------------------------------------------------------------------------------
       (defun ganadores-nivel-x (ramas ficha nivel) ;funcion que explora un  nivel y devuelve los ganadores del mismo
@@ -232,14 +245,15 @@
 
       (defun gana (tablero ficha) ;funcion que verifica si los jugadores ganan segun ficha
 
-        (or (en-raya tablero ficha 0 1 2);horizontales
-    	(en-raya tablero ficha 3 4 5)
-    	(en-raya tablero ficha 6 7 8)
-    	(en-raya tablero ficha 0 3 6);verticales
-    	(en-raya tablero ficha 1 4 7)
-    	(en-raya tablero ficha 2 5 8)
-    	(en-raya tablero ficha 0 4 8);diagonales
-    	(en-raya tablero ficha 2 4 6)))
+        (or
+          (en-raya tablero ficha 0 1 2);horizontales
+        	(en-raya tablero ficha 3 4 5)
+        	(en-raya tablero ficha 6 7 8)
+        	(en-raya tablero ficha 0 3 6);verticales
+        	(en-raya tablero ficha 1 4 7)
+        	(en-raya tablero ficha 2 5 8)
+        	(en-raya tablero ficha 0 4 8);diagonales
+        	(en-raya tablero ficha 2 4 6)))
 
     ;;;;--------------------------------------------------------------------------------------------------------------
     ;;;; Una jugada del ordenador -----------------------------------------------------------------------------------
@@ -257,28 +271,24 @@
           (when (not (null raices-ganadores)) ;Puedo ganar en una sola jugada?
     	(setf jugada (first raices-ganadores))) ;Hay que controlar que las raices sean ganadoras
 
-    ;      (when (null jugada)
-    ;	(elimina-raiz-ganador-nivel-x *ficha-humano* 1))
-
+      ;    (when (null jugada)
+    	;(elimina-raiz-ganador-nivel-x *ficha-humano* 1))
           (when (null jugada) ;Si es nil jugada, buscara un camino para ganar
     	(loop
     	   (when (= nivel 9) (return)) ;busca jugadas hasta ocho niveles
-
     	   (if *arbol* ;si arbol es distinto de nil
     	       (progn
     		 (if (evenp nivel);* si nivel es par
     		     (setf jugada (raiz-ganador-nivel-x *ficha-ordenador* nivel)) ;cuando es par busca si hay ganadores en el nivel y devuelve el nodo raiz
     		     (elimina-raiz-ganador-nivel-x *ficha-humano* nivel))) ;elimino los nodos raices q tienen las jugadas ganadoras humano del nivel
-    	       (return)) ;si arbol es nil sale del bucle
-
+             (return)) ;si arbol es nil sale del bucle
     	   (when (not (null jugada)) (return)) ;si hay una jugada sale del bucle
     	   (incf nivel)))
 
           (if (null jugada)  ;si todavia es nil la jugada, hago una jugada al azar
     	  (setf (nth (nth (random (length (blancos *tablero*))) (blancos *tablero*)) *tablero*) *ficha-ordenador*) ;jugada al azar
     	  (setq *tablero* jugada)) ;si la jugada no era nil la asigno a tablero
-
-          (incf *jugada-numero*)))
+        (incf *jugada-numero*)))
 
 
     ;* Los niveles pares (incluido el cero: raices) corresponden a jugadas de la maquina en el *arbol*, y los niveles impares al humano
@@ -289,7 +299,6 @@
 
           (loop for pos from 0 to 8 do
     	   (when (equal (nth pos tablero) 'n) (push pos lista)))
-
           lista))
 
     ;;;;-----------------------------------------------------------------------------
@@ -427,26 +436,7 @@
 
     		(setq *fin-del-juego* t))))) ;si no hay espacio en blanco, termina el juego
 
-          (defun juego-nuevo ()
-    	(let
-    	    ()
-    	  (setf (text estado-juego) " ")
-    	  (setf *tablero* '(n n n n n n n n n))
-    	  (setf *fin-del-juego* nil)
-    	  (setq *sub-tabla* nil); cuando empieza un juego nuevo, *sub-tabla* se pone a nil. Pues guardara un solo juego
-    	  (setq *jugada-numero* 1)
-    	  (setf marco (create-rectangle canvas 0 0 180 180))
-    	  (itemconfigure canvas marco :fill "white")
-    	  (itemconfigure canvas marco :outline "white")	;Ahora hay que poner en blanco la parte grafica, el tablero grafico
-    	  (setf linea-1 (create-line canvas '(60 0 60 180)))
-    	  (setf linea-2 (create-line canvas '(120 0 120 180)))
-    	  (setf linea-3 (create-line canvas '(0 60 180 60)))
-    	  (setf linea-4 (create-line canvas '(0 120 180 120)))
-
-    	  (itemconfigure canvas linea-1 :width 5)
-    	  (itemconfigure canvas linea-2 :width 5)
-    	  (itemconfigure canvas linea-3 :width 5)
-    	  (itemconfigure canvas linea-4 :width 5)))
+        ;juego nuevo va aqui
 
 
           (defun asigna-turnos()
